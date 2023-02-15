@@ -3,7 +3,7 @@ import React from 'react'
 
 import { Text, View, StyleSheet, StatusBar } from 'react-native'
 
-import MusicPlayer from './components/MusicPlayer';
+import MusicPlayer from './src/components/MusicPlayer';
 
 const App = () => {
   return (
