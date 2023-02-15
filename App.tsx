@@ -1,3 +1,4 @@
+//inicio de la app
 import React from 'react'
 
 import { Text, View, StyleSheet, StatusBar } from 'react-native'
