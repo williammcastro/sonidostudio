@@ -1,4 +1,4 @@
-//inicio de la app
+//inicio de la app para config de react_native_audio_toolkit
 import React from 'react'
 
 import { Text, View, StyleSheet, StatusBar } from 'react-native'
