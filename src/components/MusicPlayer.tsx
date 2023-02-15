@@ -27,7 +27,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 //Importar el archivo json con las canciones, titulo, artista, etc
-import songs from '../../model/data';
+import songs from '../../model/musicdata';
 
 //hook para saber el tamaño de la pantalla
 const { width, height } = Dimensions.get('window');
