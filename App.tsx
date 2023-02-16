@@ -4,12 +4,14 @@ import React from 'react'
 import { Text, View, StyleSheet, StatusBar } from 'react-native'
 
 import MusicPlayer from './src/components/MusicPlayer';
+import { MusicPlayerRNAT } from './src/components/MusicPlayerRNAT';
 
 const App = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <MusicPlayer />
+      {/* <MusicPlayer /> */}
+      <MusicPlayerRNAT />
     </View>
   );
 };
