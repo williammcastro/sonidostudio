@@ -57,4 +57,12 @@ target 'sonidostudio' do
     )
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
+
+  # permisos para el microfono para RNTK
+  permissions_path = '../node_modules/react-native-permissions/ios'
+
+  pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
+
+
+
 end

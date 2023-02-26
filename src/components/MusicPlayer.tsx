@@ -1,3 +1,7 @@
+//Este es el ejemplo de RNTP - react-native-track-player - esta funcionando ok!
+//pero solo sirve para player, no graba y no reproduce de manera simultanea!
+
+
 import React, { useEffect, useRef, useState } from 'react'
 import { 
   Text, 
