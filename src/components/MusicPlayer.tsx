@@ -1,5 +1,7 @@
-//Este es el ejemplo de RNTP - react-native-track-player - esta funcionando ok!
+//Este es el ejemplo de RNTP : react-native-track-player - esta funcionando ok!
 //pero solo sirve para player, no graba y no reproduce de manera simultanea!
+//funciona bien lo de las playlist, artwork, seek, ffw rwd, loop, etc
+//saca 10 warnings de tsx, pero no afecta el funcionamiento
 
 
 import React, { useEffect, useRef, useState } from 'react'
@@ -33,6 +35,20 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 //Importar el archivo json con las canciones, titulo, artista, etc
 import songs from '../../model/musicdata';
 
+
+interface Track {
+  title: string;
+  artist: string;
+  artwork: string;
+}
+
+
+// interface playbackState {
+//   isPlaying: boolean;
+//   isPaused: boolean;
+//   isStopped: boolean;
+// }
+
 //hook para saber el tamaño de la pantalla
 const { width, height } = Dimensions.get('window');
 
@@ -47,9 +63,9 @@ const setupPlayer = async () => {
 
 
 //Funcion para alternar entre play y pause de acuerdo al playbackState
-const togglePlayback = async (playbackState) => {
+const togglePlayback = async (playbackState:any ) => {
   const currentTrack = await TrackPlayer.getCurrentTrack();
-  // console.log('este es playbackState: ', playbackState);
+  // console.log('este es playbackStateplaybackState: ', playbackState);
   // console.log('currentTrack: ', currentTrack);
 
   if (currentTrack != null) {
@@ -125,7 +141,7 @@ const MusicPlayer = () => {
   }
 
   //Funcion para avanzar a la siguiente cancion
-  const skipTo = async (trackId) => {
+  const skipTo = async (trackId: number) => {
     await TrackPlayer.skip(trackId);
     // await TrackPlayer.play();
   }
@@ -163,7 +179,7 @@ const MusicPlayer = () => {
 
 
   //Funcion para colocar la imagen y el titulo de la cancion en la GUI
-  const renderSongs = ({index, item}) => {
+  const renderSongs = ({}) => {
     return (
       <Animated.View style={{
         width : width,

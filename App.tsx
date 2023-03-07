@@ -1,17 +1,19 @@
 //inicio de la app para config de react_native_audio_toolkit
 import React from 'react'
 
-import { Text, View, StyleSheet, StatusBar } from 'react-native'
+import { View, StyleSheet, StatusBar } from 'react-native'
 
 import MusicPlayer from './src/components/MusicPlayer';
-import { MusicPlayerRNTK } from './src/components/MusicPlayerRNTK';
+import { MusicPlayerRNTK1 } from './src/components/MusicPlayerRNTK1';
+import { MusicPlayerRNTK0 } from './src/components/MusicPlayerRNTK0';
 
 const App = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       {/* <MusicPlayer /> */}
-      <MusicPlayerRNTK />
+      {/* <MusicPlayerRNTK0 /> */}
+      <MusicPlayerRNTK1 />
     </View>
   );
 };
