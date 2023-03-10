@@ -9,7 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react'
-import { Text, TouchableOpacity, View, StyleSheet, Platform, PermissionsAndroid, NativeAppEventEmitter, DeviceEventEmitter, NativeModules } from 'react-native'
+import { Text, TouchableOpacity, View, StyleSheet, Platform, PermissionsAndroid } from 'react-native'
 import { Player, Recorder, MediaStates } from '@react-native-community/audio-toolkit';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -34,13 +34,18 @@ const defaultRecorderOptions = {
   quality: 'max',
   encoder: 'mp3',
   format: 'mp3',
+  autoDestroy: false,
 };
 
 
 export const MusicPlayerRNTK1 = () => {
 
-  const pathAudio2 = 'test.mp4';
-  const pathAudio = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3';
+  const pathAudio = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3'; //Ruta correcta de recurso en internet - funca ok
+  const pathAudio2 = 'test.mp4'; //ruta correcta para ios - funca ok
+
+  // const pathAudio2 = '/var/mobile/Containers/Data/Application/4A94E88E-BCBD-464D-AE7F-1FE2295FB805/Documents/test.mp4';
+  // const pathAudio2 = '/grabacion/test.mp4';
+  // const pathAudio = 'test2.mp4';
 
   
   const [sonidoPlayer1, setSonidoPlayer1] = useState<Player>(new Player(pathAudio2, defaultPlayerOptions));
@@ -52,19 +57,40 @@ export const MusicPlayerRNTK1 = () => {
   const [secondsPlayed, setSecondsPlayed] = useState(0);
 
 
-  const play1 = () => {
-    // sonidoPlayer1 = new Player( pathAudio2, defaultPlayerOptions);//forma basica de crear un player
-    console.log('este es play1, este es sonidoPlayer1 : ', sonidoPlayer1 );//Descomentar para ver el objeto
-    sonidoPlayer1.looping = true;
-    sonidoPlayer1.play((err) => {
+  const funcTest = () => {
+    console.log('este es sonidoPlayer1 en funcTest: ', sonidoPlayer1);
+    // console.log('este es sonidoPlayer2 en funcTest: ', sonidoPlayer2);
+    console.log('este es sonidoRecord en funcTest: ', sonidoRecord);
+    console.log('esta es la ruta de sonidoRecord en funcTest: ', sonidoRecord.fsPath);
+    console.log('este es playerState en funcTest: ', playerState);
+    sonidoPlayer1.prepare((err) => {
       if (err) {
-          console.log('error', err);
-          return;
+        console.log('error', err);
+        return;
       }
     });
-      setSonidoPlayer1(sonidoPlayer1);
-      setPlayerState(MediaStates.PLAYING);
-    };
+  }
+
+  const play1 = () => {
+    sonidoPlayer1.prepare((err) => {
+      if (err) {
+        console.log('error', err);
+        return;
+      } else {
+        sonidoPlayer1.looping = true;
+        sonidoPlayer1.play((err) => {
+          if (err) {
+            console.log('error', err);
+            return;
+          }
+        });
+        setSonidoPlayer1(sonidoPlayer1);
+        setPlayerState(MediaStates.PLAYING);
+      };
+    });
+      // sonidoPlayer1 = new Player( pathAudio2, defaultPlayerOptions);//forma basica de crear un player
+      console.log('este es play1, este es sonidoPlayer1 : ', sonidoPlayer1 );//Descomentar para ver el objeto
+  };
 
 
   //useEffect para calcular y mostrar el tiempo de reproduccion cada segundo
@@ -106,15 +132,23 @@ export const MusicPlayerRNTK1 = () => {
 
 
     const play2 = () => {
-      console.log('este es play2, este es sonidoPlayer2 : ', sonidoPlayer2 );//Descomentar para ver el objeto
-      sonidoPlayer2.looping = true;
-      sonidoPlayer2.play((err) => {
+      sonidoPlayer2.prepare((err) => {
         if (err) {
           console.log('error', err);
           return;
-        }
+        } else {
+          sonidoPlayer2.looping = true;
+          sonidoPlayer2.play((err) => {
+            if (err) {
+              console.log('error', err);
+              return;
+            }
+          });
+          setSonidoPlayer2(sonidoPlayer2);
+          setPlayerState(MediaStates.PLAYING);
+        };
       });
-        setSonidoPlayer2(sonidoPlayer2);
+      console.log('este es play2, este es sonidoPlayer2 : ', sonidoPlayer2 );//Descomentar para ver el objeto
     };
   
   
@@ -189,26 +223,35 @@ export const MusicPlayerRNTK1 = () => {
 
 
     const record = () => {
-      sonidoRecord.stop();
+      // sonidoRecord.stop();
       sonidoPlayer1.stop();
       sonidoPlayer2.stop();
       // sonidoRecord.destroy();
       // sonidoPlayer1.destroy();
 
       console.log('iniciando grabacion');
-      console.log('este es MediaStates en RECORDING : ', MediaStates);
-      console.log('este es sonidoRecord en RECORDING : ', sonidoRecord);
-      sonidoRecord.record((err) => {
+      // console.log('este es MediaStates en RECORDING : ', MediaStates);
+      // console.log('este es sonidoRecord en RECORDING : ', sonidoRecord);
+      sonidoRecord.prepare((err, fspath) => {
         if (err) {
-            console.log('error', err);
-            return;
-        }
-          console.log('grabando............');
-          //TODO: revisar donde se va a guardar el audio
-          setSonidoRecord(sonidoRecord);
-          setPlayerState(MediaStates.RECORDING);
-        
-      });
+          console.log('recorder preparew failed: ', err);
+        } 
+        else if (!err) {
+          // props.onFileURIChange(fspath);
+          console.log('fspath: ', fspath);
+          sonidoRecord.record((err) => {
+            if (err) {
+                console.log('error', err);
+                return;
+            }
+              console.log('grabando............');
+              //TODO: revisar donde se va a guardar el audio
+              setSonidoRecord(sonidoRecord);
+              setPlayerState(MediaStates.RECORDING);
+              console.log(sonidoRecord.fsPath);
+          })
+        };
+      })
     };
 
 
@@ -224,6 +267,9 @@ export const MusicPlayerRNTK1 = () => {
         //TODO: desrtuir el objeto sonidoRecord al final y crear uno nuevo? o crearlo en el record?
         // setSonidoPlayer1({ path: pathAudio, });
       });
+      console.log('este es sonidoRecord.fsPath : ',sonidoRecord.fsPath );
+      console.log('este es sonidoRecord.isPrepared : ',sonidoRecord.isPrepared );
+      console.log('este es sonidoRecord.isRecording : ',sonidoRecord.isRecording );
     };
 
 
@@ -244,7 +290,7 @@ export const MusicPlayerRNTK1 = () => {
   
     return (
       <View>
-          <Text style={ styles.title }>MusicPlayer - RNTK</Text>
+          <Text style={ styles.title }>MusicPlayer - RNTK1</Text>
         <View style={ styles.musicControls} >
           <TouchableOpacity onPress={() => play1()}>
             <Icon name="ios-play-circle" size={35} color="#ffd369" style={{marginTop:20}} />
@@ -265,11 +311,11 @@ export const MusicPlayerRNTK1 = () => {
 
 
 
-          <Text style={ styles.title } >{ porcentPlayed }</Text>
-          <Text style={ styles.title } >{ formattedTime }</Text>
+          <Text style={ styles.title } >{ porcentPlayed } %</Text>
+          <Text style={ styles.title } >{ formattedTime } Sec</Text>
 
 
-          <Text style={styles.title }>MusicRecorder - RNTK</Text>
+          <Text style={styles.title }>MusicRecorder - RNTK1</Text>
         <View style={ styles.musicControls} >
           <TouchableOpacity onPress={() => record()}>
             <MaterialCommunityIcons name="record-rec" size={44} color="red" style={{marginTop:15}} />
@@ -283,6 +329,10 @@ export const MusicPlayerRNTK1 = () => {
             <Icon name="ios-pause-circle" size={35} color="#ffd369" style={{marginTop:20}} />
           </TouchableOpacity>
         </View>
+          <TouchableOpacity onPress={() => funcTest()}>
+            <Icon name="ios-play-circle" size={35} color="#ffd369" style={{marginTop:20}} />
+          </TouchableOpacity>
+
       </View>
     );
   };
