@@ -13,6 +13,7 @@ import { Text, TouchableOpacity, View, StyleSheet, Platform, PermissionsAndroid 
 import { Player, Recorder, MediaStates } from '@react-native-community/audio-toolkit';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import RNFS, { ReadDirItem } from 'react-native-fs';
 
 
 export const PlaybackCategories = {
@@ -41,36 +42,101 @@ const defaultRecorderOptions = {
 export const MusicPlayerRNTK1 = () => {
 
   const pathAudio = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3'; //Ruta correcta de recurso en internet - funca ok
-  const pathAudio2 = 'test.mp4'; //ruta correcta para ios - funca ok
-
+  // const pathAudio2 = 'test.mp4'; //ruta correcta para ios - funca ok
+  
   // const pathAudio2 = '/var/mobile/Containers/Data/Application/4A94E88E-BCBD-464D-AE7F-1FE2295FB805/Documents/test.mp4';
   // const pathAudio2 = '/grabacion/test.mp4';
   // const pathAudio = 'test2.mp4';
+  const pathAudio2 = 'test.mp4'; //ruta correcta para ios - funca ok
 
   
+
+  //MANEJO DE ESTADOS PARA EL REPRODUCTOR Y GRABADOR
   const [sonidoPlayer1, setSonidoPlayer1] = useState<Player>(new Player(pathAudio2, defaultPlayerOptions));
   const [sonidoPlayer2, setSonidoPlayer2] = useState<Player>(new Player(pathAudio, defaultPlayerOptions));
   const [sonidoRecord, setSonidoRecord] = useState<Recorder>(new Recorder(pathAudio2, defaultRecorderOptions));
 
+  //Estados del reproductor para el tiempo, porcentaje y estado
   const [playerState, setPlayerState] = useState(MediaStates.IDLE);
   const [porcentPlayed, setporcentPlayed] = useState(0);
   const [secondsPlayed, setSecondsPlayed] = useState(0);
+  //FIN DE MANEJO DE ESTADOS PARA EL REPRODUCTOR Y GRABADOR
+
+
+  //MANEJO DE ESTADOS PARA EL MANEJO DE ALMACENAMIENTO
+  const [downloadsFolder, setDownloadsFolder] = useState('');
+  const [documentsFolder, setDocumentsFolder] = useState('');
+  const [externalDirectory, setExternalDirectory] = useState('');
+  const [fileData, setFileData] = useState<string | undefined>();
+
+
+
+  const [files, setFiles] = useState<ReadDirItem[]>([]);
+
+  //FIN MANEJO DE ESTADOS PARA EL MANEJO DE ALMACENAMIENTO
+
+
+  //FUNCION DE PRUEBA PARA VER LOS ESTADOS DEL REPRODUCTOR Y GRABADOR
+  
+  
+  const filePath = RNFS.DocumentDirectoryPath + "/grabacion1/joke.txt";
+  const fileContent = "Why do programmers wear glasses? \n They can't C#!";
+
 
 
   const funcTest = () => {
-    console.log('este es sonidoPlayer1 en funcTest: ', sonidoPlayer1);
-    // console.log('este es sonidoPlayer2 en funcTest: ', sonidoPlayer2);
-    console.log('este es sonidoRecord en funcTest: ', sonidoRecord);
-    console.log('esta es la ruta de sonidoRecord en funcTest: ', sonidoRecord.fsPath);
-    console.log('este es playerState en funcTest: ', playerState);
-    sonidoPlayer1.prepare((err) => {
-      if (err) {
-        console.log('error', err);
-        return;
-      }
-    });
+    // console.log('este es sonidoPlayer1 en funcTest: ', sonidoPlayer1);
+    // // console.log('este es sonidoPlayer2 en funcTest: ', sonidoPlayer2);
+    // console.log('este es sonidoRecord en funcTest: ', sonidoRecord);
+
+
+    // console.log('esta es la ruta de sonidoRecord en funcTest: ', sonidoRecord.fsPath);
+    // console.log('RNFS.DownloadDirectoryPath : ', RNFS.DownloadDirectoryPath)
+    // console.log('RNFS.DocumentDirectoryPath : ', RNFS.DocumentDirectoryPath)
+    // console.log('RNFS.ExternalStorageDirectoryPath : ', RNFS.ExternalStorageDirectoryPath)
+    
+    // console.log('RNFS.DocumentDirectoryPath : ', RNFS.mkdir(RNFS.DocumentDirectoryPath + '/grabacion1'));
+    // makeFile(filePath, fileContent);
+    // getFileContent(RNFS.DocumentDirectoryPath);
+    // console.log('este es getFileContent : ', getFileContent(RNFS.DocumentDirectoryPath + '/grabacion1'));
+    const leido = readFile(RNFS.DocumentDirectoryPath + '/grabacion1/joke.txt');
+    console.log('este es el resultado del clg de readFile sale el objeto raro!: ',leido);
   }
 
+
+  const makeFile = async (filePath: string, content: string) => {
+    try {
+      //create a file at filePath. Write the content data to it
+      await RNFS.writeFile(filePath, content, "utf8");
+      console.log("written to file");
+    } catch (error) { //if the function throws an error, log it out.
+      console.log(error);
+    }
+  };
+
+  //useEffect DE PRUEBA PARA REVISAR LO Q PROPORCIONA LA LIBRERIA
+  // useEffect(() => {
+  //   //get user's file paths from react-native-fs
+  //   setDownloadsFolder(RNFS.DownloadDirectoryPath);
+  //   setDocumentsFolder(RNFS.DocumentDirectoryPath); //alternative to MainBundleDirectory.
+  //   setExternalDirectory(RNFS.ExternalStorageDirectoryPath);
+  // }, []);
+
+
+
+  const getFileContent = async (path: string) => {
+    const reader = await RNFS.readDir(path);
+    setFiles(reader);
+  };
+
+  const readFile = async (path: string) => {
+    const response = await RNFS.readFile(path);
+    console.log('este es el resultado dentro de reaFile de response OK: ',response);
+    setFileData(response); //set the value of response to the fileData Hook.
+  };
+
+
+  //FUNCION PLAY DEL REPRODUCTOR 1
   const play1 = () => {
     sonidoPlayer1.prepare((err) => {
       if (err) {
@@ -93,7 +159,7 @@ export const MusicPlayerRNTK1 = () => {
   };
 
 
-  //useEffect para calcular y mostrar el tiempo de reproduccion cada segundo
+  //useEffect PARA CALCULAR EL TIEMPO DE REPRODUCCION Y EL PORCENTAJE DE REPRODUCCION CADA SEGUNDO
   useEffect(() => {
     let interval: number;
     if (playerState === MediaStates.PLAYING) {
@@ -108,7 +174,7 @@ export const MusicPlayerRNTK1 = () => {
 
 
 
-  //UseEffect para pedir permisos de grabacion y reproduccion
+  //UseEffect PARA SOLICITAR PERMIOS DE USO DE MICROFONO Y ALMACENAMIENTO
   useEffect(() => {
     requestPermissions();
     return () => {
@@ -116,7 +182,7 @@ export const MusicPlayerRNTK1 = () => {
     }
   }, []);
 
-    //ligado al useEffect para escuchar los eventos de reproduccion
+    //FUNCION PARA FORMATEAR EL TIEMPO DE REPRODUCCION
     const formatTime = (time: number): string =>{
       let minutes: number = Math.floor(time / 60000);
       if (minutes < 0) {minutes = 0}
@@ -127,7 +193,7 @@ export const MusicPlayerRNTK1 = () => {
       return (minutes < 10 ? '0' : '') + minutes + ':' + seconds;
     }
     
-    //ligado al useEffect para formatear el tiempo de reproduccion
+    //LIGADO AL useEffect PARA FORMATEAR EL TIEMPO DE REPRODUCCION
     const formattedTime: string = formatTime(secondsPlayed);
 
 
@@ -151,7 +217,8 @@ export const MusicPlayerRNTK1 = () => {
       console.log('este es play2, este es sonidoPlayer2 : ', sonidoPlayer2 );//Descomentar para ver el objeto
     };
   
-  
+    
+    //FUNCION STOP DEL REPRODUCTOR 1
     const stop = () => {
       console.log('este es sonidoPlayer1 en stop: ', sonidoPlayer1);
       sonidoPlayer1.stop((err) => {
@@ -164,6 +231,7 @@ export const MusicPlayerRNTK1 = () => {
     };
 
 
+    //FUNCION STOP DEL REPRODUCTOR 2
     const stop2 = () => {
       console.log('este es sonidoPlayer2 en stop: ', sonidoPlayer2);
       sonidoPlayer2.stop((err) => {
@@ -175,6 +243,7 @@ export const MusicPlayerRNTK1 = () => {
     };
 
 
+    //FUNCION PAUSE DEL REPRODUCTOR 1
     const pause = () => {
       sonidoPlayer1.pause((err) => {
           if (err) {
@@ -187,7 +256,7 @@ export const MusicPlayerRNTK1 = () => {
     };
 
 
-
+    //FUNCION PARA SOLICITAR PERMISOS DE USO DE MICROFONO Y ALMACENAMIENTO
     const requestPermissions = async () => {
       console.log('permissionGranted');
       if (Platform.OS === 'android') {
@@ -222,6 +291,7 @@ export const MusicPlayerRNTK1 = () => {
     };
 
 
+    //FUNCION PARA PREPARE E INICIO DE LA GRABACION
     const record = () => {
       // sonidoRecord.stop();
       sonidoPlayer1.stop();
@@ -255,6 +325,7 @@ export const MusicPlayerRNTK1 = () => {
     };
 
 
+    //FUNCION PARA PARAR LA GRABACION
     const stopRecord = () => {
       console.log('parando record');
       console.log('este es sonidoRecord en record: ', sonidoRecord);
@@ -273,6 +344,7 @@ export const MusicPlayerRNTK1 = () => {
     };
 
 
+    //FUNCION PARA PAUSAR LA GRABACION
     const pauseRecord = () => {
       console.log('pausando record');
       console.log('este es sonidoRecord en record: ', sonidoRecord);
@@ -332,6 +404,10 @@ export const MusicPlayerRNTK1 = () => {
           <TouchableOpacity onPress={() => funcTest()}>
             <Icon name="ios-play-circle" size={35} color="#ffd369" style={{marginTop:20}} />
           </TouchableOpacity>
+
+          {/* <Text> Downloads Folder: {downloadsFolder}</Text>
+          <Text>Documents folder: {documentsFolder}</Text>
+          <Text>External storage: {externalDirectory}</Text> */}
 
       </View>
     );
