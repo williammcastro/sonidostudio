@@ -67,11 +67,8 @@ export const MusicPlayerRNTK1 = () => {
   const [downloadsFolder, setDownloadsFolder] = useState('');
   const [documentsFolder, setDocumentsFolder] = useState('');
   const [externalDirectory, setExternalDirectory] = useState('');
-  const [fileData, setFileData] = useState<string | undefined>();
-
-
-
-  const [files, setFiles] = useState<ReadDirItem[]>([]);
+  const [fileData, setFileData] = useState<string | undefined>();//para la lectura de un archivo - guarda el contenido del archivo
+  const [files, setFiles] = useState<ReadDirItem[]>([]);//para la lectura de directorios
 
   //FIN MANEJO DE ESTADOS PARA EL MANEJO DE ALMACENAMIENTO
 
@@ -79,41 +76,87 @@ export const MusicPlayerRNTK1 = () => {
   //FUNCION DE PRUEBA PARA VER LOS ESTADOS DEL REPRODUCTOR Y GRABADOR
   
   
-  const filePath = RNFS.DocumentDirectoryPath + "/grabacion1/joke.txt";
-  const fileContent = "Why do programmers wear glasses? \n They can't C#!";
+  const filePath = RNFS.DocumentDirectoryPath + "/grabacion1/jok3.txt";
+  const fileContent = "CHISTE 3: este es el chiste numero 3 para q se rian de los mismos";
+  // const fileContent = "CHISTE 2: este es el chiste numero 2 para q se rian de los mismos";
+  // const fileContent = "CHISTE 1: Why do programmers wear glasses? \n They can't C#!";
+  const pathToDelete = RNFS.DocumentDirectoryPath + "/joke3.txt"; //file to delete
 
 
 
   const funcTest = () => {
     // console.log('este es sonidoPlayer1 en funcTest: ', sonidoPlayer1);
-    // // console.log('este es sonidoPlayer2 en funcTest: ', sonidoPlayer2);
+    // console.log('este es sonidoPlayer2 en funcTest: ', sonidoPlayer2);
     // console.log('este es sonidoRecord en funcTest: ', sonidoRecord);
 
-
     // console.log('esta es la ruta de sonidoRecord en funcTest: ', sonidoRecord.fsPath);
-    // console.log('RNFS.DownloadDirectoryPath : ', RNFS.DownloadDirectoryPath)
-    // console.log('RNFS.DocumentDirectoryPath : ', RNFS.DocumentDirectoryPath)
-    // console.log('RNFS.ExternalStorageDirectoryPath : ', RNFS.ExternalStorageDirectoryPath)
+    // console.log('RNFS.DownloadDirectoryPath : ', RNFS.DownloadDirectoryPath)//Descargas!
+    // console.log('RNFS.DocumentDirectoryPath : ', RNFS.DocumentDirectoryPath)//Dcocumentos!
+    // console.log('RNFS.ExternalStorageDirectoryPath : ', RNFS.ExternalStorageDirectoryPath)//Storage externo
     
-    // console.log('RNFS.DocumentDirectoryPath : ', RNFS.mkdir(RNFS.DocumentDirectoryPath + '/grabacion1'));
-    // makeFile(filePath, fileContent);
-    // getFileContent(RNFS.DocumentDirectoryPath);
-    // console.log('este es getFileContent : ', getFileContent(RNFS.DocumentDirectoryPath + '/grabacion1'));
-    const leido = readFile(RNFS.DocumentDirectoryPath + '/grabacion1/joke.txt');
-    console.log('este es el resultado del clg de readFile sale el objeto raro!: ',leido);
+    //CREACION DE UN FOLDER mkdir- RETORNA OBJ RARO SI LO METO EN UN CLG
+     RNFS.mkdir(RNFS.DocumentDirectoryPath + '/grabacion1');
+
+    //CREACION DE ARCHIVO EN LA CARPETA INDICADA filePath Y ESCRITURA DE CONTENIDO fileContent EN EL ARCHIVO
+    makeFile1(filePath, fileContent);
+
+    //LECTURA DE ARCHIVO EN LA CARPETA INDICADA
+    readFile1(RNFS.DocumentDirectoryPath + '/grabacion1/joke.txt');
+
+    //LECTURA DE LISTADO DE DIRECTORIOS Y ARCHIVOS EN LA RUTA INDICADA - ANTES DE BORRADO
+    getFileContent(RNFS.DocumentDirectoryPath + '/grabacion1');
+    
+    //BORRADO DE ARCHIVO
+    deleteFile1(pathToDelete);
+    
+    //NUEVA LECTURA DE DIRECTORIOS Y ARCHIVOS EN LA RUTA INDICADA - DESPUES DE BORRADO
+    getFileContent(RNFS.DocumentDirectoryPath + '/grabacion1');
   }
 
 
-  const makeFile = async (filePath: string, content: string) => {
+  const makeFile1 = async (filePath: string, content: string) => {
     try {
-      //create a file at filePath. Write the content data to it
+      //crea un archivo en la ruta especificada en filePath. Escribe el contenido en él
       await RNFS.writeFile(filePath, content, "utf8");
-      console.log("written to file");
-    } catch (error) { //if the function throws an error, log it out.
-      console.log(error);
+      console.log("Contenido escrito en el archivo correctamente");
+    } catch (error) { //si la funcion falla, se ejecuta el catch
+      console.log('Error:', error);
     }
   };
 
+  
+  //LECTURA DE UN ARCHIVO EN LA RUTA INDICADA Y LO METE EN EL ESTADO fileData
+  const readFile1 = async (path: string) => {
+    const response = await RNFS.readFile(path);
+    // console.log('este es el resultado dentro de reaFile de response OK: ',response);
+    setFileData(response); //set the value of response to the fileData Hook.
+    // console.log('Este es fileData el estado : ',fileData)
+    return response;//OTRA FORMA DE RETORNAR EL VALOR DE LA FUNCION EN LUGAR DE USAR EL ESTADO setFileData//no funca?
+  };
+  
+
+  //DEVUELVE UN VECTOR (reader)QUE CONTIENE OBJETOS JSON CON LA INFO DE LOS ARCHIVOS Y CARPETAS EN LA RUTA INDICADA
+  const getFileContent = async (path: string) => {
+    const reader = await RNFS.readDir(path);
+    setFiles(reader);
+    console.log('este es reader en getFileContent:',reader)
+    // console.log('este es files en getFileContent:',files)
+  };
+
+  //BORRA UN ARCHIVO EN LA RUTA INDICADA
+  const deleteFile1 = async (path: string) => {
+
+    try {
+      await RNFS.unlink(path);
+      console.log('Archivo borrado correctamente');
+    } catch (error) {
+      console.log('Error:', error);
+    }
+  };
+
+  
+
+  // //REVISAR FUNCIONES IMPORTANTES Q ME VAN A SERVIR PARA EL MANEJO DE ARCHIVOS
   //useEffect DE PRUEBA PARA REVISAR LO Q PROPORCIONA LA LIBRERIA
   // useEffect(() => {
   //   //get user's file paths from react-native-fs
@@ -121,19 +164,6 @@ export const MusicPlayerRNTK1 = () => {
   //   setDocumentsFolder(RNFS.DocumentDirectoryPath); //alternative to MainBundleDirectory.
   //   setExternalDirectory(RNFS.ExternalStorageDirectoryPath);
   // }, []);
-
-
-
-  const getFileContent = async (path: string) => {
-    const reader = await RNFS.readDir(path);
-    setFiles(reader);
-  };
-
-  const readFile = async (path: string) => {
-    const response = await RNFS.readFile(path);
-    console.log('este es el resultado dentro de reaFile de response OK: ',response);
-    setFileData(response); //set the value of response to the fileData Hook.
-  };
 
 
   //FUNCION PLAY DEL REPRODUCTOR 1
